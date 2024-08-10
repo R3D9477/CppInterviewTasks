@@ -18,7 +18,7 @@ protected:
     }
 };
 
-/*TEST_F(OrderCacheTest, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
+TEST_F(OrderCacheTest, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -36,7 +36,7 @@ TEST_F(OrderCacheTest, Sell_getMatchingSizeForSecurity_Zero_SingleSecurity)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 0U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity_1)
 {
     m_orderCache.clear();
 
@@ -46,7 +46,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 500U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity_2)
 {
     m_orderCache.clear();
 
@@ -65,7 +65,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity)
 
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"),
               1100U); // S700[B600], B500[S400+S100] => B600+S400+S100 = 1100
-}*/
+}
 
 TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_SingleSecurity)
 {
@@ -122,7 +122,7 @@ TEST_F(OrderCacheTest, BuySell_CancelOrderMinQty_getMatchingSizeForSecurity_Sing
               750U); // B600[S400], B500[S350] => S400+S350 = 750
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_1)
 {
     m_orderCache.clear();
 
@@ -135,7 +135,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 2700U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta2)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_2)
 {
     m_orderCache.clear();
 
@@ -153,7 +153,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta2)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 0U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta3)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_3)
 {
     m_orderCache.clear();
 
@@ -164,7 +164,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta3)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 600U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta4)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_4)
 {
     m_orderCache.clear();
 
@@ -185,4 +185,25 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta4)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 300U);
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 1000U);
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 600U);
+}
+
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_5)
+{
+    m_orderCache.clear();
+
+    m_orderCache.addOrder({"OrdId1", "SecId3", "Sell", 100U, "User1", "Company1"});
+    m_orderCache.addOrder({"OrdId2", "SecId3", "Sell", 200U, "User3", "Company2"});
+    m_orderCache.addOrder({"OrdId3", "SecId1", "Buy", 300U, "User2", "Company1"});
+    m_orderCache.addOrder({"OrdId4", "SecId3", "Sell", 400U, "User5", "Company2"});
+    m_orderCache.addOrder({"OrdId5", "SecId2", "Sell", 500U, "User2", "Company1"});
+    m_orderCache.addOrder({"OrdId6", "SecId2", "Buy", 600U, "User3", "Company2"});
+    m_orderCache.addOrder({"OrdId7", "SecId2", "Sell", 700U, "User1", "Company1"});
+    m_orderCache.addOrder({"OrdId8", "SecId1", "Sell", 800U, "User2", "Company1"});
+    m_orderCache.addOrder({"OrdId9", "SecId1", "Buy", 900U, "User5", "Company2"});
+    m_orderCache.addOrder({"OrdId10", "SecId1", "Sell", 1000U, "User1", "Company1"});
+    m_orderCache.addOrder({"OrdId11", "SecId2", "Sell", 1100U, "User6", "Company2"});
+
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 900U);
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 600U);
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 0U);
 }

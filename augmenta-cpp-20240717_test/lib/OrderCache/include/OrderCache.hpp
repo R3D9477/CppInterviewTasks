@@ -2,7 +2,7 @@
 
 #include "OrderCacheInterface.hpp"
 
-#include "MatchingInfo.hpp"
+#include "SecurityMatching.hpp"
 #include "SecurityOrdersCacheInfo.hpp"
 
 #include <stack>
