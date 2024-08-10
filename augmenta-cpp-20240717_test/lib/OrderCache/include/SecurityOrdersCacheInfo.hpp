@@ -2,7 +2,6 @@
 
 #include "Order.hpp"
 
-#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -33,23 +32,5 @@ template <std::size_t ReservedSize, typename OrderID_t = std::string> struct Sec
         {
             Orders.erase(itSecurityOrder->second);
         }
-    }
-
-    template <typename TOrdersStorageCache> void sortOrdersByQty(const TOrdersStorageCache &ordersStorageCache)
-    {
-        const auto sortOrders = [&](const OrderID_t &lOrderId, const OrderID_t &rOrderId) {
-            const auto itLOrder = ordersStorageCache.find(lOrderId);
-            if (itLOrder != ordersStorageCache.end())
-            {
-                const auto itROrder = ordersStorageCache.find(rOrderId);
-                if (itROrder != ordersStorageCache.end())
-                {
-                    return itLOrder->second->qty() > itROrder->second->qty();
-                }
-            }
-            return false;
-        };
-
-        std::sort(Orders.begin(), Orders.end(), sortOrders);
     }
 };

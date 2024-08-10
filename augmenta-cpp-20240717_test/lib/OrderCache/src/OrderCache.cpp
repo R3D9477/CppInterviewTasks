@@ -103,7 +103,6 @@ unsigned int OrderCache::getMatchingSizeForSecurity(const std::string &securityI
     if (itSecurity != m_securitiesCache.end())
     {
         auto &securityCache = itSecurity->second;
-        securityCache.template sortOrdersByQty<decltype(m_ordersCache)>(m_ordersCache);
 
         return MatchingUtils::getMatchings<decltype(m_ordersCache), decltype(securityCache.Orders)>(
             m_ordersCache, securityCache.Orders);

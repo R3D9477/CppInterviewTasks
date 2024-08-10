@@ -2,6 +2,7 @@
 
 #include "Order.hpp"
 
+#include <algorithm>
 #include <vector>
 
 struct MatchingInfo
@@ -12,7 +13,8 @@ struct MatchingInfo
 
     bool apply(const Order &oppOrder)
     {
-        if (m_order.side() != oppOrder.side())
+        if (m_order.side() != oppOrder.side() && m_order.user() != oppOrder.user() &&
+            m_order.company() != oppOrder.company())
         {
             if (oppOrder.qty() <= m_remain)
             {
@@ -42,11 +44,26 @@ private:
 
 struct MatchingUtils
 {
-    template <typename TOrdersStorage, typename TSecurityOrders>
+    template <typename TOrdersStorage, typename TSecurityOrders, typename OrderID_t = std::string>
     static unsigned int getMatchings(const TOrdersStorage &ordersStorageCache, TSecurityOrders securityOrders)
     {
         if (securityOrders.size() < 2U || ordersStorageCache.size() < securityOrders.size())
             return 0U;
+
+        const auto sOrdersCmp = [&](const OrderID_t &lOrderId, const OrderID_t &rOrderId) {
+            const auto itLOrder = ordersStorageCache.find(lOrderId);
+            if (itLOrder != ordersStorageCache.end())
+            {
+                const auto itROrder = ordersStorageCache.find(rOrderId);
+                if (itROrder != ordersStorageCache.end())
+                {
+                    return itLOrder->second->qty() > itROrder->second->qty();
+                }
+            }
+            return false;
+        };
+
+        std::sort(securityOrders.begin(), securityOrders.end(), sOrdersCmp);
 
         unsigned int totalMatchingsAmount{0U};
         std::vector<MatchingInfo> foundMatchings;

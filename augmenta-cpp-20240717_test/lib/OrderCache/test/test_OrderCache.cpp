@@ -46,7 +46,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 500U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_NonZero_SingleSecurity)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -54,7 +54,6 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_NonZero_SingleSecurity
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 200U, "User1", "CompanyA"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 300U, "User1", "CompanyA"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 400U, "User1", "CompanyA"});
-
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 500U, "User2", "CompanyB"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyC"});
 
@@ -68,7 +67,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_NonZero_SingleSecurity
               1100U); // S700[B600], B500[S400+S100] => B600+S400+S100 = 1100
 }*/
 
-TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_NonZero_SingleSecurity)
+TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -83,57 +82,10 @@ TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_NonZero_Si
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 500U, "User2", "CompanyB"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyC"});
 
-    // ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"),
-    //           1000U); // B600[S400+S200], B500[S300+S100] => S400+S200+S300+S100 = 1000
-
     m_orderCache.cancelOrder(furtherCancelOrderId1);
 
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"),
-              500U); // B600[S400+S200], B500[S100] => S400+S200+S100 = 500
-}
-
-/*TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_SingleSecurity)
-{
-    m_orderCache.clear();
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 100U, "User1", "CompanyA"});
-
-    const auto furtherCancelOrderId1 = getNextOrderId();
-    m_orderCache.addOrder({furtherCancelOrderId1, "SecId1", "Sell", 200U, "User1", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 300U, "User1", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 400U, "User1", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 500U, "User2", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 700U, "User3", "CompanyA"});
-
-    const auto furtherCancelOrderId2 = getNextOrderId();
-    m_orderCache.addOrder({furtherCancelOrderId2, "SecId1", "Sell", 50U, "User2", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 60U, "User1", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 70U, "User1", "CompanyA"});
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 380U);
-
-    m_orderCache.cancelOrder(furtherCancelOrderId1);
-    m_orderCache.cancelOrder(furtherCancelOrderId2);
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 130U);
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 5U, "User1", "CompanyA"});
-
-    const auto furtherCancelOrderId3 = getNextOrderId();
-    m_orderCache.addOrder({furtherCancelOrderId3, "SecId1", "Sell", 5U, "User1", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 5U, "User1", "CompanyA"});
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 145U);
-
-    m_orderCache.cancelOrder(furtherCancelOrderId3);
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 140U);
+              700U); // B600[S400+S200], B500[S100] => S400+S200+S100 = 700
 }
 
 TEST_F(OrderCacheTest, BuySell_CancelOrderForUser_getMatchingSizeForSecurity_SingleSecurity)
@@ -141,29 +93,16 @@ TEST_F(OrderCacheTest, BuySell_CancelOrderForUser_getMatchingSizeForSecurity_Sin
     m_orderCache.clear();
 
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 100U, "User1", "CompanyA"});
-
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 200U, "User1", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 300U, "User1", "CompanyA"});
+    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 300U, "User4", "CompanyA"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 400U, "User1", "CompanyA"});
+    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 500U, "User2", "CompanyB"});
+    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyC"});
 
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 500U, "User2", "CompanyA"});
+    m_orderCache.cancelOrdersForUser("User4");
 
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 700U, "User3", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 50U, "User2", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 1000U, "User1", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 2000U, "User1", "CompanyA"});
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 3250U);
-
-    m_orderCache.cancelOrdersForUser("User2");
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 2700U);
-
-    m_orderCache.cancelOrdersForUser("User3");
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 4000U);
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"),
+              700U); // B600[S400+S200], B500[S100] => S400+S200+S100 = 700
 }
 
 TEST_F(OrderCacheTest, BuySell_CancelOrderMinQty_getMatchingSizeForSecurity_SingleSecurity)
@@ -171,31 +110,19 @@ TEST_F(OrderCacheTest, BuySell_CancelOrderMinQty_getMatchingSizeForSecurity_Sing
     m_orderCache.clear();
 
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 100U, "User1", "CompanyA"});
-
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 200U, "User1", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 300U, "User1", "CompanyA"});
+    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 350U, "User4", "CompanyA"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 400U, "User1", "CompanyA"});
+    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 500U, "User2", "CompanyB"});
+    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyC"});
 
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 500U, "User2", "CompanyA"});
+    m_orderCache.cancelOrdersForSecIdWithMinimumQty("SecId1", 200U);
 
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 700U, "User3", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 50U, "User2", "CompanyA"});
-
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 1000U, "User1", "CompanyA"});
-    m_orderCache.addOrder({getNextOrderId(), "SecId1", "Sell", 2000U, "User1", "CompanyA"});
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 3250U);
-
-    m_orderCache.cancelOrdersForSecIdWithMinimumQty("SecId1", 500U);
-
-    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 1700U);
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"),
+              750U); // B600[S400], B500[S350] => S400+S350 = 750
 }
-*/
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1_SecId2)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1)
 {
     m_orderCache.clear();
 
@@ -206,27 +133,9 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1_SecId2)
     m_orderCache.addOrder({"OrdId8", "SecId2", "Sell", 5000U, "User8", "CompanyE"});
 
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 2700U);
-
-    /*
-    - SecId2
-      - OrdId2 matches quantity 600 against OrdId4
-      - OrdId2 matches quantity 2000 against OrdId7
-      - OrdId2 has a total matched quantity of 2600
-
-      - OrdId8 matches quantity 100 against OrdId5 only
-      - OrdId8 has a remaining qty of 4900
-
-      - OrdId4 had its quantity fully allocated to match OrdId2
-
-      - No remaining qty on OrdId4 for the remaining 4900 of OrdId8
-      - Total quantity matched for SecId2 is 2700. (2600 + 100)
-
-      - Note: there are other combinations of matches among the orders which
-        would lead to the same result of 2700 total qty matching
-    */
 }
 
-/*TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1_All)
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta2)
 {
     m_orderCache.clear();
 
@@ -242,4 +151,38 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta1_SecId2)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 0U);
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 2700U);
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 0U);
-}*/
+}
+
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta3)
+{
+    m_orderCache.clear();
+
+    m_orderCache.addOrder({"OrdId2", "SecId3", "Sell", 200U, "User8", "Company2"});
+    m_orderCache.addOrder({"OrdId5", "SecId3", "Sell", 500U, "User7", "Company2"});
+    m_orderCache.addOrder({"OrdId6", "SecId3", "Buy", 600U, "User3", "Company1"});
+
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 600U);
+}
+
+TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta4)
+{
+    m_orderCache.clear();
+
+    m_orderCache.addOrder({"OrdId1", "SecId1", "Sell", 100U, "User10", "Company2"});
+    m_orderCache.addOrder({"OrdId2", "SecId3", "Sell", 200U, "User8", "Company2"});
+    m_orderCache.addOrder({"OrdId3", "SecId1", "Buy", 300U, "User13", "Company2"});
+    m_orderCache.addOrder({"OrdId4", "SecId2", "Sell", 400U, "User12", "Company2"});
+    m_orderCache.addOrder({"OrdId5", "SecId3", "Sell", 500U, "User7", "Company2"});
+    m_orderCache.addOrder({"OrdId6", "SecId3", "Buy", 600U, "User3", "Company1"});
+    m_orderCache.addOrder({"OrdId7", "SecId1", "Sell", 700U, "User10", "Company2"});
+    m_orderCache.addOrder({"OrdId8", "SecId1", "Sell", 800U, "User2", "Company1"});
+    m_orderCache.addOrder({"OrdId9", "SecId2", "Buy", 900U, "User6", "Company2"});
+    m_orderCache.addOrder({"OrdId10", "SecId2", "Sell", 1000U, "User5", "Company1"});
+    m_orderCache.addOrder({"OrdId11", "SecId1", "Sell", 1100U, "User13", "Company2"});
+    m_orderCache.addOrder({"OrdId12", "SecId2", "Buy", 1200U, "User9", "Company2"});
+    m_orderCache.addOrder({"OrdId13", "SecId1", "Sell", 1300U, "User1", "Company1"});
+
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 300U);
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 1000U);
+    ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 600U);
+}
