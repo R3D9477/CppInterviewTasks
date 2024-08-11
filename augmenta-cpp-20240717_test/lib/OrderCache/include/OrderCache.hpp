@@ -2,9 +2,11 @@
 
 #include "OrderCacheInterface.hpp"
 
-#include "SecurityMatching.hpp"
+#include "CacheConfig.hpp"
 #include "SecurityOrdersCacheInfo.hpp"
+#include "SecurityOrdersMatching.hpp"
 
+#include <list>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -15,15 +17,8 @@
 class OrderCache : public OrderCacheInterface
 {
 public:
-    static constexpr std::size_t OrdersCacheReserverSize = 1000000U;      // Predicted amount of operations
-    static constexpr std::size_t UserOrdersCacheReserverSize = 50000U;    // Predicted amount of users
-    static constexpr std::size_t OrdersPerUserCacheReserverSize = 10000U; // Predicted amount of orders of each user
-    static constexpr std::size_t SecuritiesCacheReserverSize = 10000U;    // Predicted amount of orders per security
-
-public:
     OrderCache()
     {
-        m_ordersStorage.reserve(OrdersCacheReserverSize);
         m_ordersCache.reserve(OrdersCacheReserverSize);
         m_userOrdersCache.reserve(UserOrdersCacheReserverSize);
         m_securitiesCache.reserve(SecuritiesCacheReserverSize);
@@ -34,8 +29,6 @@ public:
         m_securitiesCache.clear();
         m_userOrdersCache.clear();
         m_ordersCache.clear();
-        while (!m_ordersStorageFreeIterators.empty())
-            m_ordersStorageFreeIterators.pop();
         m_ordersStorage.clear();
     }
 
@@ -53,13 +46,12 @@ public:
 
 private:
     // orders registry
-    std::vector<Order> m_ordersStorage;
+    std::list<Order> m_ordersStorage;
     // table [ Order ID - Object ]
     std::unordered_map<std::string, decltype(m_ordersStorage)::iterator> m_ordersCache;
-    // free items in orders registry
-    std::stack<decltype(m_ordersStorage)::iterator> m_ordersStorageFreeIterators;
+
     // table [ User ID - Order IDs ]
     std::unordered_map<std::string, std::unordered_set<std::string>> m_userOrdersCache;
-    // table [ Security ID - Orders Chain ]
-    std::unordered_map<std::string, SecurityOrdersCacheInfo<SecuritiesCacheReserverSize>> m_securitiesCache;
+    // table [ Security ID - Security Order IDs ]
+    std::unordered_map<std::string, SecurityOrdersCacheInfo> m_securitiesCache;
 };

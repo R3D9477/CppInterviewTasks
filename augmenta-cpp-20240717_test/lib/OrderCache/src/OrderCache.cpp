@@ -12,28 +12,16 @@ void OrderCache::addOrder(Order order)
         return;
     }
 
-    auto itOrder = m_ordersStorage.end();
-    if (m_ordersStorageFreeIterators.empty())
-    {
-        m_ordersStorage.push_back(order);
-        itOrder = std::prev(m_ordersStorage.end());
-    }
-    else
-    {
-        itOrder = m_ordersStorageFreeIterators.top();
-        m_ordersStorageFreeIterators.pop();
-
-        *itOrder = order;
-    }
-    m_ordersCache[orderId] = itOrder;
-
-    auto &securityCache = m_securitiesCache[order.securityId()];
-    securityCache.addOrder(order);
+    m_ordersStorage.push_back(order);
+    m_ordersCache[orderId] = std::prev(m_ordersStorage.end());
 
     const auto usedId = order.user();
     if (m_userOrdersCache.find(usedId) == m_userOrdersCache.end())
         m_userOrdersCache[usedId].reserve(OrdersPerUserCacheReserverSize);
     m_userOrdersCache[usedId].insert(orderId);
+
+    auto &securityCache = m_securitiesCache[order.securityId()];
+    securityCache.addOrder(order);
 }
 
 void OrderCache::cancelOrder(const std::string &orderId)
@@ -51,7 +39,10 @@ void OrderCache::cancelOrder(const std::string &orderId)
         }
 
         m_userOrdersCache[cancelledOrder.user()].erase(orderId);
-        m_ordersStorageFreeIterators.push(itOrder->second);
+
+        // m_ordersStorageFreeIterators.push(itOrder->second);
+        m_ordersStorage.erase(itOrder->second);
+
         m_ordersCache.erase(itOrder);
     }
 }
@@ -88,7 +79,7 @@ void OrderCache::cancelOrdersForSecIdWithMinimumQty(const std::string &securityI
 
         for (const auto &orderId : securityCache.Orders)
         {
-            if (m_ordersCache[orderId]->qty() <= minQty)
+            if (m_ordersCache[orderId]->qty() >= minQty)
                 ordersToCancel.insert(orderId);
         }
 
@@ -103,9 +94,7 @@ unsigned int OrderCache::getMatchingSizeForSecurity(const std::string &securityI
     if (itSecurity != m_securitiesCache.end())
     {
         auto &securityCache = itSecurity->second;
-
-        return MatchingUtils::getMatchings<decltype(m_ordersCache), decltype(securityCache.Orders)>(
-            m_ordersCache, securityCache.Orders);
+        return MatchingUtils::getMatchings(m_ordersCache, securityCache.Orders);
     }
 
     return 0U;
@@ -113,5 +102,5 @@ unsigned int OrderCache::getMatchingSizeForSecurity(const std::string &securityI
 
 std::vector<Order> OrderCache::getAllOrders() const
 {
-    return m_ordersStorage;
+    return {m_ordersStorage.begin(), m_ordersStorage.end()};
 }

@@ -2,35 +2,34 @@
 
 #include "Order.hpp"
 
+#include "CacheConfig.hpp"
+
 #include <cstdint>
 #include <string>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
-template <std::size_t ReservedSize, typename OrderID_t = std::string> struct SecurityOrdersCacheInfo
+struct SecurityOrdersCacheInfo
 {
-    std::vector<OrderID_t> Orders;
-    std::unordered_map<OrderID_t, typename decltype(Orders)::iterator> OrdersCache;
+    std::unordered_set<std::string> Orders;
 
     SecurityOrdersCacheInfo()
     {
-        Orders.reserve(ReservedSize);
-        OrdersCache.reserve(ReservedSize);
+        Orders.reserve(SecuritiesCacheReserverSize);
     }
 
     void addOrder(const Order &order)
     {
         const auto &orderId = order.orderId();
-        Orders.push_back(orderId);
-        OrdersCache[orderId] = std::prev(Orders.end());
+        Orders.insert(orderId);
     }
 
-    void cancelOrder(const OrderID_t &orderId)
+    void cancelOrder(const std::string &orderId)
     {
-        auto itSecurityOrder = OrdersCache.find(orderId);
-        if (itSecurityOrder != OrdersCache.end())
+        auto itSecurityOrder = Orders.find(orderId);
+        if (itSecurityOrder != Orders.end())
         {
-            Orders.erase(itSecurityOrder->second);
+            Orders.erase(itSecurityOrder);
         }
     }
 };

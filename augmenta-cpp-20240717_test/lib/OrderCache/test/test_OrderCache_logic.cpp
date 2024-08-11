@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-class OrderCacheTest : public ::testing::Test
+class OrderCacheTest_Logic : public ::testing::Test
 {
 protected:
     OrderCache m_orderCache;
@@ -18,7 +18,7 @@ protected:
     }
 };
 
-TEST_F(OrderCacheTest, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
+TEST_F(OrderCacheTest_Logic, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -27,7 +27,7 @@ TEST_F(OrderCacheTest, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 0U);
 }
 
-TEST_F(OrderCacheTest, Sell_getMatchingSizeForSecurity_Zero_SingleSecurity)
+TEST_F(OrderCacheTest_Logic, Sell_getMatchingSizeForSecurity_Zero_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -36,7 +36,7 @@ TEST_F(OrderCacheTest, Sell_getMatchingSizeForSecurity_Zero_SingleSecurity)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 0U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity_1)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_SingleSecurity_1)
 {
     m_orderCache.clear();
 
@@ -46,7 +46,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity_1)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"), 500U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity_2)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_SingleSecurity_2)
 {
     m_orderCache.clear();
 
@@ -67,7 +67,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_SingleSecurity_2)
               1100U); // S700[B600], B500[S400+S100] => B600+S400+S100 = 1100
 }
 
-TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_SingleSecurity)
+TEST_F(OrderCacheTest_Logic, BuySell_CancelOrder_getMatchingSizeForSecurity_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -88,7 +88,7 @@ TEST_F(OrderCacheTest, BuySell_CancelOrder_getMatchingSizeForSecurity_SingleSecu
               700U); // B600[S400+S200], B500[S100] => S400+S200+S100 = 700
 }
 
-TEST_F(OrderCacheTest, BuySell_CancelOrderForUser_getMatchingSizeForSecurity_SingleSecurity)
+TEST_F(OrderCacheTest_Logic, BuySell_CancelOrderForUser_getMatchingSizeForSecurity_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -105,7 +105,7 @@ TEST_F(OrderCacheTest, BuySell_CancelOrderForUser_getMatchingSizeForSecurity_Sin
               700U); // B600[S400+S200], B500[S100] => S400+S200+S100 = 700
 }
 
-TEST_F(OrderCacheTest, BuySell_CancelOrderMinQty_getMatchingSizeForSecurity_SingleSecurity)
+TEST_F(OrderCacheTest_Logic, BuySell_CancelOrderMinQty_getMatchingSizeForSecurity_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -116,13 +116,13 @@ TEST_F(OrderCacheTest, BuySell_CancelOrderMinQty_getMatchingSizeForSecurity_Sing
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 500U, "User2", "CompanyB"});
     m_orderCache.addOrder({getNextOrderId(), "SecId1", "Buy", 600U, "User3", "CompanyC"});
 
-    m_orderCache.cancelOrdersForSecIdWithMinimumQty("SecId1", 200U);
+    m_orderCache.cancelOrdersForSecIdWithMinimumQty("SecId1", 350U);
 
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId1"),
-              750U); // B600[S400], B500[S350] => S400+S350 = 750
+              0U); // B600[S400], B500[S350] => S400+S350 = 750
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_1)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_Augmenta_1)
 {
     m_orderCache.clear();
 
@@ -135,7 +135,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_1)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 2700U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_2)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_Augmenta_2)
 {
     m_orderCache.clear();
 
@@ -153,7 +153,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_2)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 0U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_3)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_Augmenta_3)
 {
     m_orderCache.clear();
 
@@ -164,7 +164,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_3)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 600U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_4)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_Augmenta_4)
 {
     m_orderCache.clear();
 
@@ -187,7 +187,7 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_4)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 600U);
 }
 
-TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_5)
+TEST_F(OrderCacheTest_Logic, BuySell_getMatchingSizeForSecurity_Augmenta_5)
 {
     m_orderCache.clear();
 
