@@ -28,7 +28,7 @@ void OrderCache::addOrder(Order order)
     m_ordersCache[orderId] = itOrder;
 
     auto &securityCache = m_securitiesCache[order.securityId()];
-    securityCache.addOrder(order);
+    securityCache.addOrder(*itOrder);
 
     const auto usedId = order.user();
     if (m_userOrdersCache.find(usedId) == m_userOrdersCache.end())
@@ -84,12 +84,12 @@ void OrderCache::cancelOrdersForSecIdWithMinimumQty(const std::string &securityI
         const auto &securityCache = itSecurity->second;
 
         std::unordered_set<std::string> ordersToCancel;
-        ordersToCancel.reserve(securityCache.Orders.size());
+        ordersToCancel.reserve(securityCache.size());
 
-        for (const auto &orderId : securityCache.Orders)
+        for (auto itOrder = securityCache.cbegin(); itOrder != securityCache.cend(); ++itOrder)
         {
-            if (m_ordersCache[orderId]->qty() <= minQty)
-                ordersToCancel.insert(orderId);
+            if (itOrder->qty() <= minQty)
+                ordersToCancel.insert(itOrder->orderId());
         }
 
         for (const auto &orderId : ordersToCancel)
@@ -104,8 +104,8 @@ unsigned int OrderCache::getMatchingSizeForSecurity(const std::string &securityI
     {
         auto &securityCache = itSecurity->second;
 
-        return MatchingUtils::getMatchings<decltype(m_ordersCache), decltype(securityCache.Orders)>(
-            m_ordersCache, securityCache.Orders);
+        return MatchingUtils::getMatchings<decltype(m_ordersCache), decltype(securityCache)>(m_ordersCache,
+                                                                                             securityCache);
     }
 
     return 0U;
