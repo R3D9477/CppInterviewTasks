@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Order.hpp"
+#include "OrdersPriorityQueue.hpp"
 
 #include <algorithm>
+#include <queue>
 #include <vector>
 
 struct MatchingInfo
@@ -54,25 +56,10 @@ private:
 struct MatchingUtils
 {
     template <typename TOrdersStorage, typename TSecurityOrders, typename OrderID_t = std::string>
-    static unsigned int getMatchings(const TOrdersStorage &ordersStorageCache, TSecurityOrders securityOrders)
+    static unsigned int getMatchings(const TOrdersStorage &ordersStorageCache, const TSecurityOrders &securityOrders)
     {
-        if (securityOrders.size() < 2U || ordersStorageCache.size() < securityOrders.size())
+        if (securityOrders.empty() || securityOrders.size() > ordersStorageCache.size())
             return 0U;
-
-        const auto sOrdersCmp = [&](const OrderID_t &lOrderId, const OrderID_t &rOrderId) {
-            const auto itLOrder = ordersStorageCache.find(lOrderId);
-            if (itLOrder != ordersStorageCache.end())
-            {
-                const auto itROrder = ordersStorageCache.find(rOrderId);
-                if (itROrder != ordersStorageCache.end())
-                {
-                    return itLOrder->second->qty() > itROrder->second->qty();
-                }
-            }
-            return false;
-        };
-
-        std::sort(securityOrders.begin(), securityOrders.end(), sOrdersCmp);
 
         std::vector<MatchingInfo> foundMatchings;
         std::vector<Order> remainOrders;
@@ -102,17 +89,12 @@ struct MatchingUtils
         };
 
         bool addedNewRemainOrder = false;
-        for (auto itSOrder = securityOrders.begin(); itSOrder != securityOrders.end(); ++itSOrder)
+
+        /*for (auto itSOrder = securityOrders.cbegin(); itSOrder != securityOrders.cend(); ++itSOrder)
         {
-            const auto itCache_SOrder = ordersStorageCache.find(*itSOrder);
-            if (itCache_SOrder == ordersStorageCache.end())
-            {
-                continue;
-            }
-            const Order &sOrder = *(itCache_SOrder->second);
-            if (match(sOrder))
+            if (match(*itSOrder))
                 addedNewRemainOrder = true;
-        }
+        }*/
 
         while (addedNewRemainOrder)
         {

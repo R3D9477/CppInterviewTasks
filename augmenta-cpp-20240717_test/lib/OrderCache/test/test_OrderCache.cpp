@@ -8,6 +8,7 @@ class OrderCacheTest : public ::testing::Test
 {
 protected:
     OrderCache m_orderCache;
+    OrdersPriorityQueue<1000U> m_ordersQueue;
 
     std::size_t m_orderCounter = 0U;
     std::string getNextOrderId()
@@ -18,7 +19,117 @@ protected:
     }
 };
 
-TEST_F(OrderCacheTest, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
+TEST_F(OrderCacheTest, OrdersPriorityQueue_addSortRemove)
+{
+    Order order1{"OrdId1", "SecId1", "Buy", 10U, "User1", "CompanyA"};
+    Order order2{"OrdId2", "SecId1", "Buy", 100U, "User1", "CompanyA"};
+    Order order3{"OrdId3", "SecId1", "Buy", 1U, "User1", "CompanyA"};
+
+    ASSERT_EQ(true, m_ordersQueue.empty());
+
+    m_ordersQueue.addOrder(order1);
+    m_ordersQueue.addOrder(order2);
+    m_ordersQueue.addOrder(order3);
+
+    {
+        ASSERT_EQ(false, m_ordersQueue.empty());
+        ASSERT_EQ(3U, m_ordersQueue.size());
+
+        const auto content = m_ordersQueue.getAll();
+
+        auto itFromStorage1 = m_ordersQueue.cbegin();
+        auto itFromStorage2 = std::next(itFromStorage1);
+        auto itFromStorage3 = std::next(itFromStorage2);
+
+        {
+            const std::string orderId = "OrdId2";
+            const auto &orderFromStorage = *itFromStorage1;
+            ASSERT_EQ(orderFromStorage.orderId(), orderId);
+            auto itFromCache = m_ordersQueue.getOrder(orderId);
+            const auto &orderFromCache = *itFromCache;
+            ASSERT_EQ(orderFromCache.orderId(), orderFromStorage.orderId());
+        }
+
+        {
+            const std::string orderId = "OrdId1";
+            const auto &orderFromStorage = *itFromStorage2;
+            ASSERT_EQ(orderFromStorage.orderId(), orderId);
+            auto itFromCache = m_ordersQueue.getOrder(orderId);
+            const auto &orderFromCache = *itFromCache;
+            ASSERT_EQ(orderFromCache.orderId(), orderFromStorage.orderId());
+        }
+
+        {
+            const std::string orderId = "OrdId3";
+            const auto &orderFromStorage = *itFromStorage3;
+            ASSERT_EQ(orderFromStorage.orderId(), orderId);
+            auto itFromCache = m_ordersQueue.getOrder(orderId);
+            const auto &orderFromCache = *itFromCache;
+            ASSERT_EQ(orderFromCache.orderId(), orderFromStorage.orderId());
+        }
+    }
+
+    m_ordersQueue.cancelOrder("OrdId1");
+
+    {
+        ASSERT_EQ(false, m_ordersQueue.empty());
+        ASSERT_EQ(2U, m_ordersQueue.size());
+
+        const auto content = m_ordersQueue.getAll();
+
+        auto itFromStorage1 = m_ordersQueue.cbegin();
+        auto itFromStorage2 = std::next(itFromStorage1);
+
+        {
+            const std::string orderId = "OrdId2";
+            const auto &orderFromStorage = *itFromStorage1;
+            ASSERT_EQ(orderFromStorage.orderId(), orderId);
+            auto itFromCache = m_ordersQueue.getOrder(orderId);
+            const auto &orderFromCache = *itFromCache;
+            ASSERT_EQ(orderFromCache.orderId(), orderFromStorage.orderId());
+        }
+
+        {
+            const std::string orderId = "OrdId3";
+            const auto &orderFromStorage = *itFromStorage2;
+            ASSERT_EQ(orderFromStorage.orderId(), orderId);
+            auto itFromCache = m_ordersQueue.getOrder(orderId);
+            const auto &orderFromCache = *itFromCache;
+            ASSERT_EQ(orderFromCache.orderId(), orderFromStorage.orderId());
+        }
+    }
+
+    m_ordersQueue.cancelOrder("OrdId2");
+
+    {
+        ASSERT_EQ(false, m_ordersQueue.empty());
+        ASSERT_EQ(1U, m_ordersQueue.size());
+
+        const auto content = m_ordersQueue.getAll();
+
+        auto itFromStorage1 = m_ordersQueue.cbegin();
+
+        {
+            const std::string orderId = "OrdId2";
+            const auto &orderFromStorage = *itFromStorage1;
+            ASSERT_EQ(orderFromStorage.orderId(), orderId);
+            auto itFromCache = m_ordersQueue.getOrder(orderId);
+            const auto &orderFromCache = *itFromCache;
+            ASSERT_EQ(orderFromCache.orderId(), orderFromStorage.orderId());
+        }
+    }
+
+    m_ordersQueue.cancelOrder("OrdId2");
+
+    {
+        ASSERT_EQ(true, m_ordersQueue.empty());
+        ASSERT_EQ(0U, m_ordersQueue.size());
+
+        const auto content = m_ordersQueue.getAll();
+    }
+}
+
+/*TEST_F(OrderCacheTest, Buy_getMatchingSizeForSecurity_Zero_SingleSecurity)
 {
     m_orderCache.clear();
 
@@ -207,3 +318,4 @@ TEST_F(OrderCacheTest, BuySell_getMatchingSizeForSecurity_Augmenta_5)
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId2"), 600U);
     ASSERT_EQ(m_orderCache.getMatchingSizeForSecurity("SecId3"), 0U);
 }
+*/

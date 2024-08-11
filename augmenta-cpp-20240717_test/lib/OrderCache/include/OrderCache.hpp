@@ -2,8 +2,8 @@
 
 #include "OrderCacheInterface.hpp"
 
-#include "SecurityMatching.hpp"
-#include "SecurityOrdersCacheInfo.hpp"
+#include "OrdersMatching.hpp"
+#include "OrdersPriorityQueue.hpp"
 
 #include <stack>
 #include <string>
@@ -61,5 +61,5 @@ private:
     // table [ User ID - Order IDs ]
     std::unordered_map<std::string, std::unordered_set<std::string>> m_userOrdersCache;
     // table [ Security ID - Orders Chain ]
-    std::unordered_map<std::string, SecurityOrdersCacheInfo<SecuritiesCacheReserverSize>> m_securitiesCache;
+    std::unordered_map<std::string, OrdersPriorityQueue<SecuritiesCacheReserverSize>> m_securitiesCache;
 };
