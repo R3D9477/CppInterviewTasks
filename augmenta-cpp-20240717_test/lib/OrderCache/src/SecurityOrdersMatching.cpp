@@ -1,4 +1,7 @@
 #include "SecurityOrdersMatching.hpp"
+#include "CacheConfig.hpp"
+
+#include <queue>
 
 unsigned int MatchingUtils::getMatchings(
     const std::unordered_map<std::string, std::list<Order>::iterator> &ordersStorageCache,
@@ -24,29 +27,30 @@ unsigned int MatchingUtils::getMatchings(
 
     std::sort(securityOrders.begin(), securityOrders.end(), sOrdersCmp);
 
-    std::vector<MatchingInfo> foundMatchings;
-    std::vector<Order> remainOrders;
+    std::deque<MatchingInfo> foundMatchings;
+    std::deque<Order> remainOrders;
 
     auto match = [&](const Order &sOrder) {
         bool addedNewRemainOrder = false;
         bool isMatched = false;
-        for (auto itMatch = foundMatchings.begin(); itMatch != foundMatchings.end() && !isMatched; ++itMatch)
+        for (auto &matching : foundMatchings)
         {
-            if (itMatch->isMatching(sOrder))
+            if (matching.isMatching(sOrder))
             {
-                const auto remainQty = itMatch->applyWithRemainQty(sOrder);
+                const auto remainQty = matching.applyWithRemainQty(sOrder);
                 if (remainQty > 0U)
                 {
-                    remainOrders.push_back({sOrder.orderId(), sOrder.securityId(), sOrder.side(), remainQty,
-                                            sOrder.user(), sOrder.company()});
+                    remainOrders.push_front({sOrder.orderId(), sOrder.securityId(), sOrder.side(), remainQty,
+                                             sOrder.user(), sOrder.company()});
                     addedNewRemainOrder = true;
                 }
                 isMatched = true;
+                break;
             }
         }
         if (!isMatched)
         {
-            foundMatchings.push_back({sOrder});
+            foundMatchings.push_front({sOrder});
         }
         return addedNewRemainOrder;
     };
@@ -67,10 +71,12 @@ unsigned int MatchingUtils::getMatchings(
     // while (addedNewRemainOrder)
     //{
     addedNewRemainOrder = false;
-    auto itRemainOrderEnd = remainOrders.end();
-    for (auto itRemainOrder = remainOrders.begin(); itRemainOrder != itRemainOrderEnd; ++itRemainOrder)
-        if (match(*itRemainOrder))
+    for (const auto &remainOrder : remainOrders)
+        if (match(remainOrder))
+        {
             addedNewRemainOrder = true;
+            break;
+        }
     //}
     static_cast<void>(addedNewRemainOrder);
 
