@@ -1,3 +1,0 @@
-# ADD TESTS BELOW...
-
-target_add_tests_from_folder(${OUTPUT_NAME} "test")
