@@ -292,10 +292,63 @@ void IntervalMapTest()
     map.print();
 }
 
+void test_SO()
+{
+
+    // first test case
+    interval_map<int, char> fooh{'-'};
+    /*fooh.assign(2, 5, 'a');
+    fooh.print();
+    std::cout << fooh[6] << std::endl << std::endl;
+
+    // second test case
+    //  expected : z  b  z
+    fooh = interval_map<int, char>{'-'};
+    fooh.assign(1, 4, 'b');
+    std::cout << fooh[0] << " " << fooh[1] << " " << fooh[5] << std::endl;
+
+    // third test case
+    //  expected: A
+    fooh = interval_map<int, char>{'-'};
+    fooh.assign(1, 6, 'A');
+    fooh.assign(2, 4, 'B');
+    std::cout << fooh[5] << std::endl;
+    fooh.print();
+
+    // forth test case
+    fooh = interval_map<int, char>{'-'};
+    // expected [0,'a'],[1,'z']
+    fooh.assign(0, 1, 'a');
+    fooh.print();*/
+
+    // fifth test case
+    //  expected [0,'f']
+    fooh = interval_map<int, char>{'-'};
+    fooh.assign(1, 2, 'c');
+    fooh.assign(2, 3, 'd');
+    fooh.assign(3, 4, 'e');
+    fooh.assign(4, 15, 'g'); // [1:c][2:d][3:e][4:g][15:-]
+    fooh.print();
+    fooh.assign(0, 10, 'f');
+    fooh.print();
+    std::cout << std::endl;
+
+    // sixth test case
+    //  expected: 0,'d'  2,'c'
+    fooh = interval_map<int, char>{'-'};
+    fooh.assign(1, 4, 'c');
+    fooh.assign(0, 2, 'd');
+    fooh.print();
+    std::cout << std::endl;
+}
+
 int main()
 {
     // Failed with "Non-cannonical"
 
-    IntervalMapTest();
+    // IntervalMapTest();
+
+    test_SO();
+
     return 0;
 }
