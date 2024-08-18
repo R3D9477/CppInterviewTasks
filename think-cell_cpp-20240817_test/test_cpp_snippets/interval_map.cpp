@@ -172,6 +172,8 @@ public:
                 }
             }
         }
+        else if (val == m_valBegin) // the first entry in m_map must not contain the same value as m_valBegin
+            return;
 
         // [0..3:A] [3..6:C]
         //      [2..4:B]
@@ -230,58 +232,70 @@ public:
 
 void IntervalMapTest()
 {
-    interval_map<KTypeInfo, KValInfo> m{'A'};
+    interval_map<int, char> map{'-'};
 
-    m.assign(5, 7, 'B');
-    m.assign(7, 8, 'C');
-    m.print();
+    // [4:A][6:-][7:B][9:-]
+    map.assign(4, 6, 'A');
+    map.assign(7, 9, 'B');
+    map.print();
 
-    m.assign(4, 5, 'V');
-    m.assign(3, 4, 'T');
-    m.assign(2, 3, 'Y');
-    m.print();
+    // [4:A][12:-]
+    map.assign(6, 10, 'A');
+    map.assign(10, 12, 'A');
+    map.print();
 
-    m.assign(1, 6, 'L');
-    m.print();
+    // [4:A][5:B][7:C][9:A][12:-]
+    map.assign(5, 7, 'B');
+    map.assign(7, 9, 'C');
+    map.print();
+
+    // [4:A][5:B][6:D][8:C][9:A][12:-]
+    map.assign(6, 8, 'D');
+    map.print();
+
+    // [3:-][4:T][5:B][6:D][8:C][9:A][12:-]
+    map.assign(3, 5, 'T');
+    map.print();
+
+    std::cout << std::endl;
+
+    // [3:-][4:T][5:B][6:D][8:B][10:A][12:-]
+    map.assign(8, 10, 'B');
+    map.print();
+    // [3:-][4:T][5:B][6:D][7:B][10:A][12:-]
+    map.assign(7, 8, 'B');
+    map.print();
+    // [3:-][4:T][5:B][10:A][12:-]
+    map.assign(6, 7, 'B');
+    map.print();
+
+    std::cout << std::endl;
+
+    // [-1:-][4:T][5:B][10:A][12:B][15:-]
+    map.assign(-1, 0, 'B');
+    map.assign(12, 15, 'B');
+    map.print();
+
+    std::cout << std::endl;
+
+    // [-1:-][4:T][5:-][6:B][7:-][8:B][10:A][12:B][15:-]
+    map.assign(5, 6, '-');
+    map.assign(7, 8, '-');
+    map.print();
+
+    // [-1:-][4:T][5:-][8:B][10:A][12:B][15:-]
+    map.assign(6, 7, '-');
+    map.print();
+
+    // [-1:-]
+    map.assign(0, 15, '-');
+    map.print();
 }
-
-/*void IntervalMapTest1()
-{
-    interval_map<KTypeInfo, KValInfo> m{'A'};
-
-    m.assign(0, 3, 'B');
-    m.assign(3, 7, 'D');
-    m.assign(3, 4, 'C');
-    m.assign(4, 5, 'C');
-
-    for (auto it = m.m_map.begin(); it != m.m_map.end(); ++it)
-    {
-        std::cout << "[" << it->first << ":" << it->second << "]";
-    }
-    std::cout << std::endl;
-
-    m.assign(0, 50, 'A');
-
-    for (auto it = m.m_map.begin(); it != m.m_map.end(); ++it)
-    {
-        std::cout << "[" << it->first << ":" << it->second << "]";
-    }
-    std::cout << std::endl;
-
-    m.assign(0, 3, 'B');
-    m.assign(3, 5, 'D');
-    m.assign(10, 20, 'C');
-    m.assign(20, 40, 'C');
-
-    for (auto it = m.m_map.begin(); it != m.m_map.end(); ++it)
-    {
-        std::cout << "[" << it->first << ":" << it->second << "]";
-    }
-    std::cout << std::endl;
-}*/
 
 int main()
 {
+    // Failed with "Non-cannonical"
+
     IntervalMapTest();
     return 0;
 }
