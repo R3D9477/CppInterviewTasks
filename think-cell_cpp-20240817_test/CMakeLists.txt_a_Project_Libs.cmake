@@ -1,3 +1,0 @@
-# ATTACH EXTERNAL LIBRARIES BELOW...
-
-add_subdirectory("lib/somelib")
